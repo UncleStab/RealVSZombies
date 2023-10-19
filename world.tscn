@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://ceup5b8h0nrk7"]
+
+[node name="World" type="Node2D"]
+
+[node name="Label" type="Label" parent="."]
+offset_left = 453.0
+offset_top = 258.0
+offset_right = 589.0
+offset_bottom = 304.0
+text = "Sex?"
