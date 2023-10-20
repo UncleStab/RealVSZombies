@@ -8,3 +8,10 @@ offset_top = 258.0
 offset_right = 589.0
 offset_bottom = 304.0
 text = "Sex?"
+
+[node name="Label2" type="Label" parent="."]
+offset_left = 381.0
+offset_top = 222.0
+offset_right = 552.0
+offset_bottom = 248.0
+text = "Ik fucking haat negers"
