@@ -1,10 +1,76 @@
-[gd_scene format=3 uid="uid://ceup5b8h0nrk7"]
+[gd_scene load_steps=9 format=3 uid="uid://ceup5b8h0nrk7"]
+
+[ext_resource type="Texture2D" uid="uid://crge5ypgh02bw" path="res://Tile.png" id="1_t28h7"]
+[ext_resource type="Texture2D" uid="uid://di4j6gt8ypwkw" path="res://Tile2.png" id="2_in3x3"]
+[ext_resource type="Texture2D" uid="uid://dgc44qy7120og" path="res://Peulenschieter.png" id="2_s15iv"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_m5dys"]
+texture = ExtResource("1_t28h7")
+texture_region_size = Vector2i(128, 128)
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_qrnr0"]
+texture = ExtResource("2_in3x3")
+texture_region_size = Vector2i(128, 128)
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_a0jgp"]
+texture = ExtResource("2_s15iv")
+margins = Vector2i(16, 16)
+texture_region_size = Vector2i(96, 96)
+0:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_1ql68"]
+tile_size = Vector2i(128, 128)
+sources/0 = SubResource("TileSetAtlasSource_m5dys")
+sources/2 = SubResource("TileSetAtlasSource_a0jgp")
+sources/1 = SubResource("TileSetAtlasSource_qrnr0")
+
+[sub_resource type="GDScript" id="GDScript_ykmqq"]
+script/source = "extends TileMap
+
+
+var GridSize = 9
+var Dic = {}
+var i = 0
+
+func _ready():
+	
+	for x in GridSize:
+		for y in GridSize:
+			Dic[str(Vector2(x,y))] = {
+					\"Type\": \"Grass\",
+					\"Position\": str(Vector2(x,y))
+			}
+			i = (i+1)%2
+			set_cell(0, Vector2(x,y), i, Vector2i(0,0), 0)
+
+func _process(delta):
+	var tile = local_to_map(get_global_mouse_position())
+	
+	
+	if (Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)):
+		if Dic.has(str(tile)):
+			set_cell(1, tile, 2, Vector2i(0,0), 0)
+"
 
 [node name="World" type="Node2D"]
 
-[node name="Label" type="Label" parent="."]
-offset_left = 453.0
-offset_top = 258.0
-offset_right = 589.0
-offset_bottom = 304.0
-text = "Sex?"
+[node name="TileMap" type="TileMap" parent="."]
+position = Vector2(1, 0)
+tile_set = SubResource("TileSet_1ql68")
+cell_quadrant_size = 128
+format = 2
+layer_0/name = "Ground"
+layer_1/name = "Plant"
+layer_1/enabled = true
+layer_1/modulate = Color(1, 1, 1, 1)
+layer_1/y_sort_enabled = false
+layer_1/y_sort_origin = 0
+layer_1/z_index = 0
+layer_1/tile_data = PackedInt32Array()
+script = SubResource("GDScript_ykmqq")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(470, 206)
+zoom = Vector2(0.75, 0.75)
