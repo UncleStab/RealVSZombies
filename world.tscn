@@ -1,8 +1,10 @@
-[gd_scene load_steps=9 format=3 uid="uid://ceup5b8h0nrk7"]
+[gd_scene load_steps=13 format=3 uid="uid://ceup5b8h0nrk7"]
 
 [ext_resource type="Texture2D" uid="uid://crge5ypgh02bw" path="res://Tile.png" id="1_t28h7"]
 [ext_resource type="Texture2D" uid="uid://di4j6gt8ypwkw" path="res://Tile2.png" id="2_in3x3"]
 [ext_resource type="Texture2D" uid="uid://dgc44qy7120og" path="res://Peulenschieter.png" id="2_s15iv"]
+[ext_resource type="Texture2D" uid="uid://bnao0bk2co834" path="res://Sunflower.png" id="4_evw1c"]
+[ext_resource type="Texture2D" uid="uid://groj3csfgoiu" path="res://Tile4.png" id="4_wk7mt"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_m5dys"]
 texture = ExtResource("1_t28h7")
@@ -20,38 +22,79 @@ margins = Vector2i(16, 16)
 texture_region_size = Vector2i(96, 96)
 0:0/0 = 0
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_pckbo"]
+texture = ExtResource("4_evw1c")
+margins = Vector2i(16, 16)
+texture_region_size = Vector2i(96, 96)
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_u4xwr"]
+texture = ExtResource("4_wk7mt")
+texture_region_size = Vector2i(128, 128)
+0:0/0 = 0
+
 [sub_resource type="TileSet" id="TileSet_1ql68"]
 tile_size = Vector2i(128, 128)
 sources/0 = SubResource("TileSetAtlasSource_m5dys")
-sources/2 = SubResource("TileSetAtlasSource_a0jgp")
 sources/1 = SubResource("TileSetAtlasSource_qrnr0")
+sources/10 = SubResource("TileSetAtlasSource_a0jgp")
+sources/2 = SubResource("TileSetAtlasSource_u4xwr")
+sources/11 = SubResource("TileSetAtlasSource_pckbo")
 
 [sub_resource type="GDScript" id="GDScript_ykmqq"]
 script/source = "extends TileMap
 
-
-var GridSize = 9
-var Dic = {}
+var selection = [0, 1]
+var plants = {0: \"Peashooter\",1: \"Sunflower\"}
+var GridSize = [9, 5]
+var field = {}
+var selectionGrid = {}
 var i = 0
+var mouseState = -1
 
 func _ready():
 	
-	for x in GridSize:
-		for y in GridSize:
-			Dic[str(Vector2(x,y))] = {
+	for x in GridSize[0]:
+		for y in GridSize[1]:
+			field[str(Vector2(x,y))] = {
 					\"Type\": \"Grass\",
 					\"Position\": str(Vector2(x,y))
 			}
 			i = (i+1)%2
 			set_cell(0, Vector2(x,y), i, Vector2i(0,0), 0)
+	
+	for x in selection.size():
+		selectionGrid[str(Vector2(x,-1))] = {
+			\"Type\": selection[x],
+			\"Position\": str(Vector2(x,-1))
+		}
+		set_cell(0, Vector2(x,-1), 2, Vector2i(0,0), 0)
+		set_cell(1, Vector2(x,-1), 10+selection[x], Vector2i(0,0), 0)
 
 func _process(delta):
 	var tile = local_to_map(get_global_mouse_position())
 	
+	for x in GridSize[0]:
+		for y in GridSize[1]:
+			erase_cell(2, Vector2(x,y))
+	
+	if mouseState != -1:
+		if field.has(str(tile)):
+			if field[str(tile)][\"Type\"] == \"Grass\":
+				set_cell(2, tile, 10 + mouseState, Vector2i(0,0), 0)
+			
+	
 	
 	if (Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)):
-		if Dic.has(str(tile)):
-			set_cell(1, tile, 2, Vector2i(0,0), 0)
+		if selectionGrid.has(str(tile)):
+			mouseState = selectionGrid[str(tile)][\"Type\"]
+		elif mouseState != -1:
+			if field.has(str(tile)):
+				field[str(tile)][\"Type\"] = plants[mouseState]
+				set_cell(1, tile, 10 + mouseState, Vector2i(0,0), 0)
+				mouseState = -1
+
+				
 "
 
 [node name="World" type="Node2D"]
@@ -69,6 +112,13 @@ layer_1/y_sort_enabled = false
 layer_1/y_sort_origin = 0
 layer_1/z_index = 0
 layer_1/tile_data = PackedInt32Array()
+layer_2/name = "Preview"
+layer_2/enabled = true
+layer_2/modulate = Color(1, 1, 1, 1)
+layer_2/y_sort_enabled = false
+layer_2/y_sort_origin = 0
+layer_2/z_index = 0
+layer_2/tile_data = PackedInt32Array()
 script = SubResource("GDScript_ykmqq")
 
 [node name="Camera2D" type="Camera2D" parent="."]
